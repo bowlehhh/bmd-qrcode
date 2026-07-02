@@ -83,7 +83,21 @@
         </section>
 
         <section class="rounded-3xl bg-white p-5 shadow-sm sm:p-6" data-page-card>
-            <h3 class="text-lg font-semibold">Riwayat Aktivitas</h3>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold">Riwayat Aktivitas</h3>
+                    <p class="mt-1 text-sm text-slate-500">Aktivitas umum sistem ditampilkan di sini. Riwayat export dipisah agar lebih rapi.</p>
+                </div>
+                <a href="{{ route('exports.history') }}" class="inline-flex items-center justify-center rounded-2xl bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
+                    Lihat Riwayat Export
+                </a>
+            </div>
+
+            <div class="mt-4 rounded-2xl bg-slate-50 px-4 py-4 text-sm text-slate-600">
+                <p><span class="font-semibold text-slate-900">Total log export Word:</span> {{ $exportCount }}</p>
+                <p class="mt-1 text-xs text-slate-500">Semua detail file, jumlah aset, dan penanggung jawab ada di halaman riwayat export khusus.</p>
+            </div>
+
             <div class="mt-4 space-y-3 sm:space-y-4">
                 @forelse ($activities as $activity)
                     <div class="rounded-2xl border border-slate-100 p-4">
@@ -91,6 +105,16 @@
                         <p class="mt-2 text-sm leading-6 text-slate-500">{{ $activity->user?->name ?? 'Sistem' }} - {{ $activity->created_at->format('d M Y H:i') }}</p>
                         @if ($activity->subject_label)
                             <p class="mt-2 break-words text-xs uppercase tracking-[0.16em] text-cyan-700">{{ $activity->subject_label }}</p>
+                        @endif
+                        @if (($activity->properties['filename'] ?? null) || ($activity->properties['total_assets'] ?? null))
+                            <div class="mt-3 rounded-2xl bg-slate-50 px-3 py-3 text-xs leading-6 text-slate-600">
+                                @if ($activity->properties['filename'] ?? null)
+                                    <p><span class="font-semibold text-slate-800">File:</span> {{ $activity->properties['filename'] }}</p>
+                                @endif
+                                @if ($activity->properties['total_assets'] ?? null)
+                                    <p><span class="font-semibold text-slate-800">Jumlah aset:</span> {{ $activity->properties['total_assets'] }}</p>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 @empty

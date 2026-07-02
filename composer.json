@@ -7,8 +7,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "chillerlan/php-qrcode": "^6.0",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
+        "phpoffice/phpword": "^1.4",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {

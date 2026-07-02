@@ -28,9 +28,9 @@ class BulkPrintAssetRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'asset_ids.required' => 'Pilih minimal satu aset untuk dicetak.',
-            'asset_ids.min' => 'Pilih minimal satu aset untuk dicetak.',
-            'asset_ids.max' => 'Cetak massal dibatasi maksimal 200 aset per proses agar server tetap stabil.',
+            'asset_ids.required' => 'Pilih minimal satu aset untuk diexport ke Word.',
+            'asset_ids.min' => 'Pilih minimal satu aset untuk diexport ke Word.',
+            'asset_ids.max' => 'Export Word massal dibatasi maksimal 200 aset per proses agar server tetap stabil.',
             'asset_ids.*.exists' => 'Ada aset yang dipilih tetapi tidak ditemukan.',
             'asset_ids.*.distinct' => 'Daftar aset yang dipilih tidak boleh duplikat.',
         ];

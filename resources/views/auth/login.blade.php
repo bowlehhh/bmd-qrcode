@@ -80,37 +80,105 @@
         </div>
     </div>
 
-    <div id="asset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 px-4">
-        <div class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-cyan-400/20 bg-slate-900 p-5 text-white shadow-2xl sm:p-6">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <p class="text-sm uppercase tracking-[0.3em] text-cyan-300">Detail Hasil Scan</p>
-                    <h3 id="modal-name" class="mt-2 text-2xl font-semibold sm:text-3xl"></h3>
-                    <p id="modal-code" class="mt-2 text-slate-300"></p>
-                </div>
-                <button type="button" id="close-asset-modal" class="rounded-2xl border border-slate-700 px-4 py-2 text-sm">Tutup</button>
-            </div>
-
-            <div class="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div class="rounded-3xl bg-white/5 p-5">
-                    <dl class="grid gap-4 md:grid-cols-2">
-                        <div><dt class="text-sm text-slate-400">Kode Barang</dt><dd id="modal-asset-code" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Nomor Register</dt><dd id="modal-register-number" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Kategori</dt><dd id="modal-category" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Merk / Type</dt><dd id="modal-brand" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Tahun Perolehan</dt><dd id="modal-year" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Lokasi</dt><dd id="modal-location" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Penanggung Jawab</dt><dd id="modal-person-in-charge" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Masih Digunakan</dt><dd id="modal-is-in-use" class="mt-1 font-semibold"></dd></div>
-                        <div><dt class="text-sm text-slate-400">Kondisi</dt><dd id="modal-condition" class="mt-1 font-semibold"></dd></div>
-                        <div class="md:col-span-2"><dt class="text-sm text-slate-400">Keterangan</dt><dd id="modal-description" class="mt-1 leading-7"></dd></div>
-                    </dl>
-                    <a id="modal-detail-link" href="#" target="_blank" class="mt-5 inline-flex rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950">Buka Halaman Detail</a>
+    <div id="asset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 px-3 py-4 sm:px-4">
+        <div class="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-cyan-300/20 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.14),_transparent_28%),linear-gradient(180deg,_#0f172a,_#111c34)] p-4 text-white shadow-[0_24px_80px_rgba(2,12,27,0.6)] sm:p-6">
+            <div class="rounded-[1.7rem] border border-cyan-300/15 bg-slate-950/35 p-4 sm:p-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-3">
+                            @include('partials.kominfo-logo', ['size' => 'h-12 w-12 sm:h-14 sm:w-14', 'alt' => 'Logo Kominfo', 'class' => 'rounded-full bg-white p-1.5 shadow-lg shadow-cyan-400/10'])
+                            <div class="min-w-0">
+                                <p class="text-[11px] uppercase tracking-[0.45em] text-sky-300">Detail Hasil Scan</p>
+                                <h3 id="modal-name" class="mt-2 break-words text-2xl font-semibold tracking-tight text-white sm:text-4xl"></h3>
+                                <p id="modal-code" class="mt-2 break-words text-base text-slate-300 sm:text-lg"></p>
+                            </div>
+                        </div>
+                        <div class="mt-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-100 sm:text-sm">
+                            <span class="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,0.9)]"></span>
+                            Data ini tampil langsung dari informasi aset terbaru
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3 sm:items-end">
+                        <button type="button" id="close-asset-modal" class="rounded-2xl border border-sky-300/15 bg-sky-400/10 px-5 py-3 text-sm font-semibold text-sky-100 transition hover:border-sky-300/35 hover:bg-sky-400/15">Kembali</button>
+                    </div>
                 </div>
 
-                <div class="rounded-3xl bg-white/5 p-5">
-                    <div id="modal-photo-empty" class="flex h-56 items-center justify-center rounded-3xl border border-dashed border-slate-700 text-center text-slate-400 sm:h-72">Foto barang belum tersedia.</div>
-                    <img id="modal-photo" src="" alt="" class="hidden h-56 w-full rounded-3xl object-cover sm:h-72">
+                <div class="mt-6 grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+                    <section class="rounded-[1.7rem] border border-cyan-300/12 bg-white/[0.04] p-4 shadow-inner shadow-cyan-950/20 sm:p-6">
+                        <div class="mb-5 flex items-center justify-between gap-3 border-b border-cyan-300/10 pb-4">
+                            <div>
+                                <p class="text-sm font-semibold text-white sm:text-base">Informasi Barang</p>
+                                <p class="mt-1 text-xs leading-6 text-slate-400 sm:text-sm">Disusun lebih ringkas agar jelas dilihat saat scan dari HP.</p>
+                            </div>
+                            <div class="hidden h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/12 text-cyan-200 sm:flex">
+                                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 19h14M7 16V8h10v8M9 5h6" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <dl class="grid gap-3 sm:grid-cols-2 sm:gap-4">
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Kode Barang</dt>
+                                <dd id="modal-asset-code" class="mt-2 break-words text-lg font-semibold text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Nomor Register</dt>
+                                <dd id="modal-register-number" class="mt-2 break-words text-lg font-semibold text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Merk / Type</dt>
+                                <dd id="modal-brand" class="mt-2 break-words text-lg font-semibold text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Tahun Perolehan</dt>
+                                <dd id="modal-year" class="mt-2 break-words text-lg font-semibold text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Penanggung Jawab</dt>
+                                <dd id="modal-person-in-charge" class="mt-2 break-words text-lg font-semibold text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Kondisi</dt>
+                                <dd id="modal-condition" class="mt-2 break-words text-lg font-semibold capitalize text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5 sm:col-span-2">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Lokasi Barang</dt>
+                                <dd id="modal-location" class="mt-2 break-words text-lg font-semibold text-white sm:text-xl"></dd>
+                            </div>
+                            <div class="rounded-2xl border border-white/6 bg-slate-900/55 px-4 py-3.5 sm:col-span-2">
+                                <dt class="text-xs font-medium uppercase tracking-[0.24em] text-sky-200/80">Keterangan</dt>
+                                <dd id="modal-description" class="mt-2 break-words text-base leading-7 text-slate-100 sm:text-lg"></dd>
+                            </div>
+                        </dl>
+
+                    </section>
+
+                    <section class="rounded-[1.7rem] border border-cyan-300/12 bg-white/[0.04] p-4 shadow-inner shadow-cyan-950/20 sm:p-6">
+                        <div class="mb-4 flex items-center gap-3">
+                            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/14 text-cyan-100 shadow-lg shadow-cyan-950/25">
+                                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M7 4h10l3 3v10l-3 3H7l-3-3V7l3-3Z" />
+                                    <circle cx="12" cy="12" r="3.5" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-white sm:text-base">Visual Barang</p>
+                                <p class="text-xs leading-6 text-slate-400 sm:text-sm">Foto barang jika tersedia, atau tampilan branding Kominfo jika belum ada.</p>
+                            </div>
+                        </div>
+
+                        <div id="modal-photo-empty" class="flex h-64 flex-col items-center justify-center rounded-[1.6rem] border border-cyan-300/14 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_38%),linear-gradient(180deg,_rgba(15,23,42,0.75),_rgba(15,23,42,0.96))] px-6 text-center sm:h-80">
+                            @include('partials.kominfo-logo', ['size' => 'h-20 w-20 sm:h-24 sm:w-24', 'alt' => 'Logo Kominfo', 'class' => 'rounded-full bg-white p-2 shadow-xl shadow-cyan-400/10'])
+                            <p class="mt-5 text-lg font-semibold text-white sm:text-xl">BMD QR Asset</p>
+                            <p class="mt-2 max-w-xs text-sm leading-7 text-slate-300">Foto barang belum tersedia. Detail informasi tetap bisa dilihat dengan rapi dari hasil scan ini.</p>
+                            <div class="mt-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-100">
+                                <span class="inline-flex h-2 w-2 rounded-full bg-cyan-300"></span>
+                                Diskominfo Kutai Barat
+                            </div>
+                        </div>
+                        <img id="modal-photo" src="" alt="" class="hidden h-64 w-full rounded-[1.6rem] border border-cyan-300/14 object-cover sm:h-80">
+                    </section>
                 </div>
             </div>
         </div>

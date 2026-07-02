@@ -66,31 +66,6 @@
         <textarea id="description" name="description" rows="3" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">{{ old('description', $asset->description ?? '') }}</textarea>
         @error('description')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
     </div>
-
-    <div>
-        <label for="category" class="mb-1.5 block text-sm font-medium text-slate-700">Kategori Barang</label>
-        <input id="category" name="category" type="text" value="{{ old('category', $asset->category ?? '') }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3" required>
-        <p class="mt-2 text-xs text-slate-500">Kolom ini tetap dipakai untuk kebutuhan pengelompokan data di aplikasi.</p>
-        @error('category')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
-    </div>
-
-    <div>
-        <label for="is_in_use" class="mb-1.5 block text-sm font-medium text-slate-700">Masih Digunakan</label>
-        <select id="is_in_use" name="is_in_use" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3" required>
-            <option value="1" @selected((string) old('is_in_use', isset($asset) ? (int) $asset->is_in_use : 1) === '1')>Ya, masih digunakan</option>
-            <option value="0" @selected((string) old('is_in_use', isset($asset) ? (int) $asset->is_in_use : 1) === '0')>Tidak digunakan</option>
-        </select>
-        @error('is_in_use')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
-    </div>
-
-    <div>
-        <label for="photo" class="mb-1.5 block text-sm font-medium text-slate-700">Foto Barang</label>
-        <input id="photo" name="photo" type="file" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">
-        @error('photo')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
-        @if ($asset?->photo_path)
-            <p class="mt-2 text-xs text-slate-500">Foto lama akan diganti bila upload baru.</p>
-        @endif
-    </div>
 </div>
 
 <div class="mt-6 flex flex-wrap gap-3 lg:mt-5">

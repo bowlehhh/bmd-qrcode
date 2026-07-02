@@ -194,7 +194,7 @@ if (printSelectionModal && openPrintModalButton && printSelectionForm && assetRe
         badge.className = asset.last_printed_at
             ? 'rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700'
             : 'rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700';
-        badge.textContent = asset.last_printed_at ? 'Sudah dicetak' : 'Belum dicetak';
+        badge.textContent = asset.last_printed_at ? 'Sudah diexport' : 'Belum diexport';
         statusWrap.appendChild(badge);
 
         if (asset.last_printed_at) {
@@ -382,20 +382,12 @@ if (scannerRoot) {
         fillText('modal-code', `${asset.asset_code} - ${asset.location}`);
         fillText('modal-asset-code', asset.asset_code);
         fillText('modal-register-number', asset.register_number);
-        fillText('modal-category', asset.category);
         fillText('modal-brand', asset.brand);
         fillText('modal-year', asset.year_acquired);
         fillText('modal-location', asset.location);
         fillText('modal-person-in-charge', asset.person_in_charge);
-        fillText('modal-is-in-use', asset.is_in_use ? 'Ya' : 'Tidak');
         fillText('modal-condition', asset.condition);
         fillText('modal-description', asset.description);
-
-        const detailLink = document.getElementById('modal-detail-link');
-
-        if (detailLink) {
-            detailLink.href = asset.detail_url;
-        }
 
         if (asset.photo_url) {
             modalPhoto.src = asset.photo_url;

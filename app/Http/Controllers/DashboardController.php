@@ -17,7 +17,12 @@ class DashboardController extends Controller
                 'lokasi' => Asset::distinct('location')->count('location'),
             ],
             'latestAssets' => Asset::latest()->take(5)->get(),
-            'activities' => ActivityLog::with('user')->latest()->take(8)->get(),
+            'activities' => ActivityLog::with('user')
+                ->whereNotIn('action', ['export_word_asset', 'export_word_assets_bulk'])
+                ->latest()
+                ->take(8)
+                ->get(),
+            'exportCount' => ActivityLog::whereIn('action', ['export_word_asset', 'export_word_assets_bulk'])->count(),
         ]);
     }
 }

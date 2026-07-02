@@ -34,6 +34,7 @@
                 <nav class="space-y-2">
                     <a href="{{ route('dashboard') }}" class="block rounded-2xl px-4 py-3 lg:py-2.5 {{ request()->routeIs('dashboard') ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-100 hover:bg-slate-800' }}">Dashboard</a>
                     <a href="{{ route('assets.index') }}" class="block rounded-2xl px-4 py-3 lg:py-2.5 {{ request()->routeIs('assets.*') ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-100 hover:bg-slate-800' }}">Data Aset</a>
+                    <a href="{{ route('exports.history') }}" class="block rounded-2xl px-4 py-3 lg:py-2.5 {{ request()->routeIs('exports.history') ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-100 hover:bg-slate-800' }}">Riwayat Export</a>
                 </nav>
             </div>
 
