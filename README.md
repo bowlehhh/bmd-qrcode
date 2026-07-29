@@ -379,3 +379,34 @@ Web `BMD QR Asset` saat ini berfungsi sebagai sistem manajemen aset berbasis QR 
 - dan semua riwayat export tercatat jelas di halaman khusus.
 
 Dokumentasi ini sebaiknya diperbarui setiap kali ada perubahan alur, field input, atau format export Word.
+
+## 21. Checklist Deploy Produksi
+
+1. Pastikan hanya folder `public` yang menjadi document root web server. Jangan arahkan domain ke root repository.
+2. Salin `deploy/production.env.example` menjadi `.env` di server, isi kredensial database di server tersebut, lalu jalankan `php artisan key:generate --force`. Jangan pernah menambahkan `.env` ke Git.
+3. Gunakan HTTPS yang valid dan arahkan HTTP ke HTTPS pada web server. Cookie sesi otomatis berstatus `Secure` di mode produksi.
+4. Jalankan `composer install --no-dev --optimize-autoloader`, `npm ci`, `npm run build`, `php artisan migrate --force`, dan `php artisan storage:link`.
+5. Jalankan `php artisan optimize` setelah `.env` final. Jika ada perubahan `.env`, jalankan `php artisan optimize:clear` lalu `php artisan optimize` lagi.
+6. Isi `ADMIN_SEED_NAME`, `ADMIN_SEED_EMAIL`, dan `ADMIN_SEED_PASSWORD` di `.env` server, lalu jalankan `php artisan db:seed --force` untuk membuat admin. Nilai password hanya berada di `.env`, tidak di kode atau Git. Alternatifnya, gunakan `php artisan app:create-admin admin@domain.go.id --name="Nama Admin"`.
+7. Pastikan folder `storage` dan `bootstrap/cache` dapat ditulis oleh user web server, tetapi `.env` hanya dapat dibaca oleh user tersebut.
+
+Konfigurasi web server juga perlu menolak akses ke file tersembunyi, `.env`, dan folder selain `public`. Jangan mengunggah atau menyimpan dump database di repository.
+
+## 22. Deploy dengan ZIP yang Lengkap
+
+ZIP biasa sering tidak membawa `vendor` dan `public/build`, karena keduanya memang tidak disimpan di Git. Untuk membuat paket deploy yang lengkap tanpa `.env`, jalankan dari komputer pengembang:
+
+```bash
+bash scripts/create-deployment-archive.sh bmd-qrcode-2026-07-30
+```
+
+Arsip akan tersedia di `dist/` dan sudah berisi dependency PHP serta hasil build frontend. Arsip tersebut tidak menyertakan `.env`, `node_modules`, cache, log, atau data export sementara.
+
+Setelah upload dan extract di server:
+
+1. Arahkan document root domain ke folder hasil extract `/public`.
+2. Buat `.env` dari `deploy/production.env.example` langsung di server dan isi semua nilai yang diperlukan.
+3. Jalankan `php artisan key:generate --force`, `php artisan migrate --force`, `php artisan db:seed --force`, `php artisan storage:link`, dan `php artisan optimize`.
+4. Atur permission `storage` dan `bootstrap/cache` agar dapat ditulis user web server; gunakan `775`, bukan `777`.
+
+Contoh konfigurasi siap edit tersedia di `deploy/nginx-site.conf.example` dan `deploy/apache-vhost.conf.example`. Ganti domain, lokasi project, sertifikat TLS, dan socket PHP-FPM sesuai server sebelum diaktifkan.

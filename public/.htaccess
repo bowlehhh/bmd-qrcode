@@ -1,7 +1,19 @@
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+<IfModule mod_negotiation.c>
+    Options -MultiViews
+</IfModule>
+
+<IfModule mod_authz_core.c>
+    # Protect accidental uploads of environment, backup, or configuration files.
+    <FilesMatch "(^\.|.*\.(?:env|ini|log|sql|bak|backup|dist|fla|psd|sh)$)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
 
     RewriteEngine On
 

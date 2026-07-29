@@ -13,10 +13,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 });
 
-Route::get('/aset/{asset:asset_code}', [AssetController::class, 'publicShow'])->name('assets.public.show');
-Route::get('/aset/{asset:asset_code}/lookup', [AssetController::class, 'publicLookup'])->name('assets.public.lookup');
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/aset/{asset:asset_code}', [AssetController::class, 'publicShow'])->name('assets.public.show');
+    Route::get('/aset/{asset:asset_code}/lookup', [AssetController::class, 'publicLookup'])->name('assets.public.lookup');
+});
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/exports/history', ExportHistoryController::class)->name('exports.history');

@@ -28,7 +28,7 @@
                     </div>
 
                     <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                        <button type="button" onclick="window.history.back()" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-300/15 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition hover:border-cyan-300/35 hover:bg-cyan-400/10">
+                        <button type="button" id="back-to-scan" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-300/15 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition hover:border-cyan-300/35 hover:bg-cyan-400/10">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6" />
                             </svg>

@@ -1,8 +1,10 @@
 *.log
 .DS_Store
+
+# Never commit environment files. Keep only the deliberately non-secret template.
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
 .phpactor.json
 .phpunit.result.cache
 /.codex
@@ -18,9 +20,13 @@
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
+/dist
 /storage/*.key
 /storage/pail
 /vendor
+
+# Database content belongs in the deployment environment, not in Git.
+/database.sql
 _ide_helper.php
 Homestead.json
 Homestead.yaml

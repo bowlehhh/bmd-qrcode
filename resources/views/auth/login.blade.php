@@ -43,22 +43,17 @@
                         @csrf
                         <div>
                             <label for="email" class="mb-2 block text-sm text-slate-300">Email</label>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" class="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-cyan-400" required>
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="username" maxlength="255" class="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-cyan-400" required>
                             @error('email')
                                 <p class="mt-2 text-sm text-rose-400">{{ $message }}</p>
                             @enderror
                         </div>
                         <div>
                             <label for="password" class="mb-2 block text-sm text-slate-300">Password</label>
-                            <input id="password" name="password" type="password" class="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-cyan-400" required>
+                            <input id="password" name="password" type="password" autocomplete="current-password" class="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-cyan-400" required>
                         </div>
                         <button type="submit" class="w-full rounded-2xl bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">Masuk ke Dashboard</button>
                     </form>
-
-                    <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-300">
-                        <p class="font-semibold text-white">Akun demo</p>
-                        <p class="mt-2 break-all">Admin: `admin@bmd.test` / `password`</p>
-                    </div>
                 </div>
 
                 <div class="rounded-3xl border border-cyan-400/20 bg-slate-950/70 p-6">

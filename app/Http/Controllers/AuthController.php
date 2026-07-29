@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Models\ActivityLog;
+use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,6 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    private const MAX_LOGIN_ATTEMPTS = 5;
+
+    private const LOCKOUT_SECONDS = 900;
+
     public function showLogin()
     {
         if (Auth::check()) {
@@ -28,14 +33,18 @@ class AuthController extends Controller
         $credentials = $request->validated();
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey($request), 60);
+            foreach ($this->throttleKeys($request) as $key) {
+                RateLimiter::hit($key, self::LOCKOUT_SECONDS);
+            }
 
             throw ValidationException::withMessages([
                 'email' => 'Email atau password tidak sesuai.',
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey($request));
+        foreach ($this->throttleKeys($request) as $key) {
+            RateLimiter::clear($key);
+        }
         $request->session()->regenerate();
 
         ActivityLog::create([
@@ -66,19 +75,27 @@ class AuthController extends Controller
 
     private function ensureIsNotRateLimited(LoginRequest $request): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
-            return;
+        foreach ($this->throttleKeys($request) as $key) {
+            if (RateLimiter::tooManyAttempts($key, self::MAX_LOGIN_ATTEMPTS)) {
+                event(new Lockout($request));
+
+                throw ValidationException::withMessages([
+                    'email' => 'Terlalu banyak percobaan login. Coba lagi dalam '.RateLimiter::availableIn($key).' detik.',
+                ]);
+            }
         }
-
-        $seconds = RateLimiter::availableIn($this->throttleKey($request));
-
-        throw ValidationException::withMessages([
-            'email' => 'Terlalu banyak percobaan login. Coba lagi dalam '.$seconds.' detik.',
-        ]);
     }
 
-    private function throttleKey(LoginRequest $request): string
+    /**
+     * @return array<int, string>
+     */
+    private function throttleKeys(LoginRequest $request): array
     {
-        return Str::transliterate(Str::lower($request->string('email'))).'|'.$request->ip();
+        $email = Str::lower(trim((string) $request->input('email')));
+
+        return [
+            'login:email:'.hash('sha256', Str::transliterate($email)),
+            'login:ip:'.hash('sha256', (string) $request->ip()),
+        ];
     }
 }

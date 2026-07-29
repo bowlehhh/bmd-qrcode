@@ -45,7 +45,7 @@ abstract class AssetRequest extends FormRequest
             'person_in_charge' => ['nullable', 'string', 'max:255'],
             'is_in_use' => ['nullable', 'boolean'],
             'condition' => ['required', 'in:baik,rusak,perlu perbaikan'],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'description' => ['nullable', 'string'],
         ];
     }

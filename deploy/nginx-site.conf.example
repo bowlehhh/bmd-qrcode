@@ -1,0 +1,47 @@
+server {
+    listen 80;
+    server_name aset.example.go.id;
+
+    # Redirect HTTP to the HTTPS virtual host after TLS has been configured.
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name aset.example.go.id;
+
+    # Replace these certificate paths with the paths supplied by your TLS provider.
+    ssl_certificate /etc/letsencrypt/live/aset.example.go.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aset.example.go.id/privkey.pem;
+
+    # Only this directory may be exposed by the domain.
+    root /var/www/bmd-qrcode/public;
+    index index.php;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+
+    # Prevent accidental exposure even if files are placed under public.
+    location ~ /\. {
+        deny all;
+    }
+
+    location ~* \.(?:env|ini|log|sql|bak|backup|dist|fla|psd|sh)$ {
+        deny all;
+    }
+
+    location ~* \.(?:css|js|mjs|jpg|jpeg|gif|png|svg|webp|ico|woff2?)$ {
+        expires 7d;
+        access_log off;
+    }
+}

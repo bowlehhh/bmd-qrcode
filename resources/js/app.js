@@ -75,6 +75,25 @@ if (logoutForm && logoutModal) {
 
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingForms = document.querySelectorAll('[data-loading-form]');
+const deleteForms = document.querySelectorAll('[data-confirm-delete]');
+const backToScanButton = document.getElementById('back-to-scan');
+
+deleteForms.forEach((form) => {
+    form.addEventListener('submit', (event) => {
+        if (!window.confirm('Hapus aset ini?')) {
+            event.preventDefault();
+        }
+    });
+});
+
+backToScanButton?.addEventListener('click', () => {
+    if (window.history.length > 1) {
+        window.history.back();
+        return;
+    }
+
+    window.location.assign('/');
+});
 
 if (loadingOverlay && loadingForms.length > 0) {
     loadingForms.forEach((form) => {

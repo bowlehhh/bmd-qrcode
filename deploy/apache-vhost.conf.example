@@ -1,0 +1,17 @@
+<VirtualHost *:80>
+    ServerName aset.example.go.id
+    DocumentRoot /var/www/bmd-qrcode/public
+
+    <Directory /var/www/bmd-qrcode>
+        Require all denied
+    </Directory>
+
+    <Directory /var/www/bmd-qrcode/public>
+        Options -Indexes -MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/bmd-qrcode-error.log
+    CustomLog ${APACHE_LOG_DIR}/bmd-qrcode-access.log combined
+</VirtualHost>
