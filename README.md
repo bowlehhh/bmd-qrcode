@@ -383,12 +383,13 @@ Dokumentasi ini sebaiknya diperbarui setiap kali ada perubahan alur, field input
 ## 21. Checklist Deploy Produksi
 
 1. Pastikan hanya folder `public` yang menjadi document root web server. Jangan arahkan domain ke root repository.
-2. Salin `deploy/production.env.example` menjadi `.env` di server, isi kredensial database di server tersebut, lalu jalankan `php artisan key:generate --force`. Jangan pernah menambahkan `.env` ke Git.
-3. Gunakan HTTPS yang valid dan arahkan HTTP ke HTTPS pada web server. Cookie sesi otomatis berstatus `Secure` di mode produksi.
-4. Jalankan `composer install --no-dev --optimize-autoloader`, `npm ci`, `npm run build`, `php artisan migrate --force`, dan `php artisan storage:link`.
-5. Jalankan `php artisan optimize` setelah `.env` final. Jika ada perubahan `.env`, jalankan `php artisan optimize:clear` lalu `php artisan optimize` lagi.
-6. Isi `ADMIN_SEED_NAME`, `ADMIN_SEED_EMAIL`, dan `ADMIN_SEED_PASSWORD` di `.env` server, lalu jalankan `php artisan db:seed --force` untuk membuat admin. Nilai password hanya berada di `.env`, tidak di kode atau Git. Alternatifnya, gunakan `php artisan app:create-admin admin@domain.go.id --name="Nama Admin"`.
-7. Pastikan folder `storage` dan `bootstrap/cache` dapat ditulis oleh user web server, tetapi `.env` hanya dapat dibaca oleh user tersebut.
+2. Server harus memakai PHP 8.4 untuk CLI dan PHP-FPM, dengan ekstensi `gd`, `pdo_mysql`, `xml`, dan `zip` aktif. Gunakan Composer 2.x.
+3. Salin `deploy/production.env.example` menjadi `.env` di server, isi kredensial database di server tersebut, lalu jalankan `php artisan key:generate --force`. Jangan pernah menambahkan `.env` ke Git.
+4. Gunakan HTTPS yang valid dan arahkan HTTP ke HTTPS pada web server. Cookie sesi otomatis berstatus `Secure` di mode produksi.
+5. Jalankan `composer install --no-dev --optimize-autoloader`, `npm ci`, `npm run build`, `php artisan migrate --force`, dan `php artisan storage:link`.
+6. Jalankan `php artisan optimize` setelah `.env` final. Jika ada perubahan `.env`, jalankan `php artisan optimize:clear` lalu `php artisan optimize` lagi.
+7. Isi `ADMIN_SEED_NAME`, `ADMIN_SEED_EMAIL`, dan `ADMIN_SEED_PASSWORD` di `.env` server, lalu jalankan `php artisan db:seed --force` untuk membuat admin. Nilai password hanya berada di `.env`, tidak di kode atau Git. Alternatifnya, gunakan `php artisan app:create-admin admin@domain.go.id --name="Nama Admin"`.
+8. Pastikan folder `storage` dan `bootstrap/cache` dapat ditulis oleh user web server, tetapi `.env` hanya dapat dibaca oleh user tersebut.
 
 Konfigurasi web server juga perlu menolak akses ke file tersembunyi, `.env`, dan folder selain `public`. Jangan mengunggah atau menyimpan dump database di repository.
 
