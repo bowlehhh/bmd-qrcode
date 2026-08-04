@@ -112,7 +112,7 @@
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
                     <p class="text-sm uppercase tracking-[0.3em] text-cyan-700">Export Word</p>
                     <h3 class="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">Pilih Aset yang Mau Diexport</h3>
-                    <p class="mt-2 text-sm leading-6 text-slate-500">Pilih folder tujuan, lalu sistem membuat atau memakai folder <span class="font-semibold text-slate-700">kodebarang</span> untuk menyimpan file Word setiap aset satu per satu.</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">Pilih folder <span class="font-semibold text-slate-700">kodebarang</span> yang sudah dibuat, lalu file Word setiap aset akan disimpan langsung di dalamnya.</p>
                 </div>
 
                 <form class="flex min-h-0 flex-1 flex-col" data-print-selection-form data-selection-endpoint="{{ route('assets.selection') }}" data-word-export-base="{{ url('/assets') }}" data-initial-selected='@json(collect(old('asset_ids', []))->map(fn ($id) => (int) $id)->values())'>

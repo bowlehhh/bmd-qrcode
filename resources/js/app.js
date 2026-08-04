@@ -468,16 +468,16 @@ if (printSelectionModal && openPrintModalButton && printSelectionForm && assetRe
             if (folderExportButton) {
                 folderExportButton.textContent = 'Menyimpan...';
             }
-            showFolderExportStatus('Menyiapkan folder kodebarang...');
+            showFolderExportStatus('Membuka folder tujuan...');
 
-            const exportDirectoryHandle = await parentDirectoryHandle.getDirectoryHandle('kodebarang', { create: true });
+            const exportDirectoryHandle = parentDirectoryHandle;
 
             for (const [index, asset] of selectedAssetsForExport.entries()) {
                 showFolderExportStatus(`Menyimpan ${index + 1} dari ${selectedAssetsForExport.length}: ${asset.name}`);
                 await saveAssetWordToFolder(asset, exportDirectoryHandle);
             }
 
-            showFolderExportStatus(`${selectedAssetsForExport.length} file Word berhasil disimpan di folder kodebarang.`);
+            showFolderExportStatus(`${selectedAssetsForExport.length} file Word berhasil disimpan di folder yang dipilih.`);
         } catch (error) {
             showFolderExportStatus(error?.message || 'Export ke folder gagal. Coba lagi.', 'error');
         } finally {
