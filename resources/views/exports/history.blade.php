@@ -40,7 +40,7 @@
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">
-                                {{ ($properties['export_type'] ?? 'single') === 'bulk' ? 'Export Massal' : 'Export Single' }}
+                                {{ ($properties['export_type'] ?? 'single') === 'bulk' ? 'Export ZIP Massal' : 'Export Single' }}
                             </span>
                             <span class="text-sm text-slate-500">{{ $log->created_at->format('d M Y H:i') }}</span>
                         </div>

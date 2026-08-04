@@ -21,6 +21,7 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\SimpleType\JcTable;
 use PhpOffice\PhpWord\Style\Language;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use ZipArchive;
 
 class AssetController extends Controller
 {
@@ -202,14 +203,14 @@ class AssetController extends Controller
             'last_printed_at' => now(),
         ]);
 
-        $filename = $asset->asset_code.'-qr-asset.docx';
+        $filename = $this->wordFilenameFor($asset);
 
         $this->logActivity($request, 'export_word_asset', $asset, 'Export QR aset ke Word.', [
             'filename' => $filename,
             'export_type' => 'single',
         ]);
 
-        return $this->downloadWordDocument(collect([$asset]), $filename);
+        return $this->downloadWordDocument($asset, $filename);
     }
 
     public function bulkExportWord(BulkPrintAssetRequest $request)
@@ -223,11 +224,12 @@ class AssetController extends Controller
             'last_printed_at' => now(),
         ]);
 
-        $filename = 'qr-aset-bmd.docx';
+        $filename = 'kodebarang-'.now()->format('Ymd-His').'.zip';
 
-        $this->logActivity($request, 'export_word_assets_bulk', null, 'Export QR beberapa aset ke Word.', [
+        $this->logActivity($request, 'export_word_assets_bulk', null, 'Export QR beberapa aset ke Word dalam ZIP.', [
             'asset' => $this->buildAssetLogSummary($assets),
             'filename' => $filename,
+            'archive_folder' => 'kodebarang',
             'export_type' => 'bulk',
             'total_assets' => $assets->count(),
             'assets' => $assets->map(fn (Asset $asset) => [
@@ -238,7 +240,7 @@ class AssetController extends Controller
             ])->all(),
         ]);
 
-        return $this->downloadWordDocument($assets, $filename);
+        return $this->downloadBulkWordArchive($assets, $filename);
     }
 
     public function selection(Request $request): JsonResponse
@@ -304,7 +306,70 @@ class AssetController extends Controller
         ]);
     }
 
-    private function downloadWordDocument($assets, string $filename)
+    private function downloadWordDocument(Asset $asset, string $filename)
+    {
+        $docxPath = $this->createWordDocument($asset);
+
+        return response()->download($docxPath, $filename)->deleteFileAfterSend(true);
+    }
+
+    private function downloadBulkWordArchive($assets, string $filename)
+    {
+        $zipPath = $this->exportDirectory().'/'.uniqid('kodebarang-', true).'.zip';
+        $documentPaths = [];
+        $zip = new ZipArchive();
+        $zipIsOpen = false;
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            throw new \RuntimeException('Arsip ZIP export tidak dapat dibuat.');
+        }
+
+        $zipIsOpen = true;
+
+        try {
+            foreach ($assets as $asset) {
+                $documentPath = $this->createWordDocument($asset);
+                $documentPaths[] = $documentPath;
+
+                if (! $zip->addFile($documentPath, 'kodebarang/'.$this->wordFilenameFor($asset))) {
+                    throw new \RuntimeException('File Word tidak dapat dimasukkan ke arsip ZIP.');
+                }
+            }
+
+            $zipClosed = $zip->close();
+            $zipIsOpen = false;
+
+            if (! $zipClosed) {
+                throw new \RuntimeException('Arsip ZIP export tidak dapat diselesaikan.');
+            }
+        } catch (\Throwable $exception) {
+            if ($zipIsOpen) {
+                $zip->close();
+            }
+
+            if (is_file($zipPath)) {
+                unlink($zipPath);
+            }
+
+            foreach ($documentPaths as $documentPath) {
+                if (is_file($documentPath)) {
+                    unlink($documentPath);
+                }
+            }
+
+            throw $exception;
+        }
+
+        foreach ($documentPaths as $documentPath) {
+            if (is_file($documentPath)) {
+                unlink($documentPath);
+            }
+        }
+
+        return response()->download($zipPath, $filename)->deleteFileAfterSend(true);
+    }
+
+    private function createWordDocument(Asset $asset): string
     {
         $phpWord = new PhpWord();
         $phpWord->getSettings()->setThemeFontLang(new Language('id-ID'));
@@ -318,25 +383,16 @@ class AssetController extends Controller
             'marginRight' => 900,
         ];
 
-        $tempFiles = [];
-        $docxPath = storage_path('app/private/exports/'.uniqid('qr-word-', true).'.docx');
+        $qrPath = null;
+        $docxPath = $this->exportDirectory().'/'.uniqid('qr-word-', true).'.docx';
 
-        if (! is_dir(dirname($docxPath))) {
-            mkdir(dirname($docxPath), 0777, true);
-        }
-
-        foreach ($assets as $index => $asset) {
+        try {
             $section = $phpWord->addSection($sectionStyle);
-
-            if ($index > 0) {
-                $section->addPageBreak();
-            }
-
             $section->addText('QR Aset BMD', ['bold' => true, 'size' => 18], ['alignment' => Jc::CENTER, 'spaceAfter' => 120]);
             $section->addText($asset->name, ['bold' => true, 'size' => 16], ['alignment' => Jc::CENTER, 'spaceAfter' => 120]);
             $section->addText($asset->asset_code.' - '.$asset->location, ['size' => 11, 'color' => '4B5563'], ['alignment' => Jc::CENTER, 'spaceAfter' => 240]);
 
-            $qrPath = storage_path('app/private/exports/'.uniqid($asset->asset_code.'-qr-', true).'.png');
+            $qrPath = $this->exportDirectory().'/'.uniqid($asset->asset_code.'-qr-', true).'.png';
             $qrOptions = new QROptions([
                 'outputInterface' => QRGdImagePNG::class,
                 'scale' => 10,
@@ -355,8 +411,6 @@ class AssetController extends Controller
             }
 
             file_put_contents($qrPath, $qrPng);
-
-            $tempFiles[] = $qrPath;
 
             $section->addImage($qrPath, [
                 'width' => 170,
@@ -381,17 +435,40 @@ class AssetController extends Controller
                 $table->addCell(3600, ['bgColor' => 'EAF6FF'])->addText($label, ['bold' => true, 'size' => 11]);
                 $table->addCell(6900)->addText($value, ['size' => 11]);
             }
-        }
 
-        IOFactory::createWriter($phpWord, 'Word2007')->save($docxPath);
+            IOFactory::createWriter($phpWord, 'Word2007')->save($docxPath);
+        } catch (\Throwable $exception) {
+            if (is_file($docxPath)) {
+                unlink($docxPath);
+            }
 
-        foreach ($tempFiles as $tempFile) {
-            if (is_file($tempFile)) {
-                unlink($tempFile);
+            throw $exception;
+        } finally {
+            if ($qrPath && is_file($qrPath)) {
+                unlink($qrPath);
             }
         }
 
-        return response()->download($docxPath, $filename)->deleteFileAfterSend(true);
+        return $docxPath;
+    }
+
+    private function exportDirectory(): string
+    {
+        $directory = storage_path('app/private/exports');
+
+        if (! is_dir($directory) && ! mkdir($directory, 0775, true) && ! is_dir($directory)) {
+            throw new \RuntimeException('Folder sementara export tidak dapat dibuat.');
+        }
+
+        return $directory;
+    }
+
+    private function wordFilenameFor(Asset $asset): string
+    {
+        $name = preg_replace('/[\\\\\/:*?"<>|\x00-\x1F]+/u', ' ', trim($asset->name)) ?: 'Aset';
+        $name = trim(preg_replace('/\s+/u', ' ', $name) ?: 'Aset', " .");
+
+        return $name.' - '.$asset->asset_code.'.docx';
     }
 
     /**

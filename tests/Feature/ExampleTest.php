@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use ZipArchive;
 
 class ExampleTest extends TestCase
 {
@@ -84,5 +85,43 @@ class ExampleTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('per_page', 20);
         $response->assertJsonCount(20, 'data');
+    }
+
+    public function test_bulk_word_export_downloads_a_zip_with_a_document_for_each_asset(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $firstAsset = Asset::factory()->create([
+            'asset_code' => 'BMD-10001',
+            'name' => 'Laptop Bidang Umum',
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+        $secondAsset = Asset::factory()->create([
+            'asset_code' => 'BMD-10002',
+            'name' => 'Printer Kantor',
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('assets.export.word.bulk'), [
+            'asset_ids' => [$firstAsset->id, $secondAsset->id],
+        ]);
+
+        $response->assertOk();
+        $response->assertHeader('content-disposition');
+        $this->assertStringContainsString('kodebarang-', (string) $response->headers->get('content-disposition'));
+
+        $archivePath = $response->baseResponse->getFile()->getPathname();
+        $archive = new ZipArchive();
+
+        $this->assertTrue($archive->open($archivePath) === true);
+        $this->assertNotFalse($archive->locateName('kodebarang/Laptop Bidang Umum - BMD-10001.docx'));
+        $this->assertNotFalse($archive->locateName('kodebarang/Printer Kantor - BMD-10002.docx'));
+        $archive->close();
+
+        @unlink($archivePath);
     }
 }

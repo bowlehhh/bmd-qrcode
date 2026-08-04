@@ -112,7 +112,7 @@
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
                     <p class="text-sm uppercase tracking-[0.3em] text-cyan-700">Export Word</p>
                     <h3 class="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">Pilih Aset yang Mau Diexport</h3>
-                    <p class="mt-2 text-sm leading-6 text-slate-500">Sistem akan membuat file Word berisi gambar QR tiap aset dan tabel informasi barang termasuk penanggung jawab.</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">Sistem akan mengunduh satu file ZIP. Setelah diekstrak, folder <span class="font-semibold text-slate-700">kodebarang</span> berisi satu file Word untuk setiap aset dengan nama barang masing-masing.</p>
                 </div>
 
                 <form method="POST" action="{{ route('assets.export.word.bulk') }}" class="flex min-h-0 flex-1 flex-col" data-loading-form data-print-selection-form data-selection-endpoint="{{ route('assets.selection') }}" data-initial-selected='@json(collect(old('asset_ids', []))->map(fn ($id) => (int) $id)->values())'>
@@ -146,7 +146,7 @@
 
                     <div class="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:justify-end sm:px-6">
                         <button type="button" data-close-print-modal class="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700">Batal</button>
-                        <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Export Word Aset Terpilih</button>
+                        <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Download ZIP Word</button>
                     </div>
                 </form>
             </div>
