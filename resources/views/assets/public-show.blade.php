@@ -103,21 +103,23 @@
                             </div>
                             <div>
                                 <p class="text-lg font-semibold text-white sm:text-xl">Visual Barang</p>
-                                <p class="text-sm leading-7 text-slate-400">Foto aset bila ada, atau branding Kominfo yang tetap enak dilihat jika foto belum tersedia.</p>
+                                <p class="text-sm leading-7 text-slate-400">Foto aset akan ditampilkan di sini jika tersedia.</p>
                             </div>
                         </div>
 
                         @if ($asset->photo_path)
                             <img src="{{ url('storage/'.$asset->photo_path) }}" alt="{{ $asset->name }}" class="h-72 w-full rounded-[1.7rem] border border-cyan-300/12 object-cover shadow-xl shadow-cyan-950/20 sm:h-96">
                         @else
-                            <div class="flex h-72 flex-col items-center justify-center rounded-[1.7rem] border border-cyan-300/12 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_34%),linear-gradient(180deg,_rgba(15,23,42,0.78),_rgba(15,23,42,0.96))] px-6 text-center sm:h-96">
-                                @include('partials.kominfo-logo', ['size' => 'h-24 w-24 sm:h-28 sm:w-28', 'alt' => 'Logo Kominfo', 'class' => 'rounded-full bg-white p-2 shadow-xl shadow-cyan-400/10'])
-                                <p class="mt-6 text-2xl font-semibold text-white">BMD QR Asset</p>
-                                <p class="mt-3 max-w-sm text-sm leading-7 text-slate-300 sm:text-base">Foto barang belum tersedia. Informasi aset tetap tampil lengkap, rapi, dan mudah dibaca.</p>
-                                <div class="mt-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-100">
-                                    <span class="inline-flex h-2 w-2 rounded-full bg-cyan-300"></span>
-                                    Dinas Kominfo Kutai Barat
+                            <div class="flex min-h-48 flex-col items-center justify-center rounded-[1.7rem] border border-dashed border-cyan-300/20 bg-slate-950/35 px-6 py-8 text-center sm:min-h-56">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-100">
+                                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M7 4h10l3 3v10l-3 3H7l-3-3V7l3-3Z" />
+                                        <circle cx="12" cy="12" r="3.5" />
+                                        <path stroke-linecap="round" d="m5 5 14 14" />
+                                    </svg>
                                 </div>
+                                <p class="mt-4 text-lg font-semibold text-white">Foto aset belum tersedia</p>
+                                <p class="mt-1 text-sm leading-6 text-slate-400">Informasi barang tetap dapat dilihat di halaman ini.</p>
                             </div>
                         @endif
                     </section>
