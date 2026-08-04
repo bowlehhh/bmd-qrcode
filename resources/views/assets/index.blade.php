@@ -107,15 +107,15 @@
     </div>
 
     @if (auth()->user()->isAdmin())
-        <div id="print-selection-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 px-4">
-            <div class="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+        <div id="print-selection-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 px-3 py-4 sm:px-4">
+            <div class="flex max-h-[calc(100dvh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl">
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
                     <p class="text-sm uppercase tracking-[0.3em] text-cyan-700">Export Word</p>
                     <h3 class="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">Pilih Aset yang Mau Diexport</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-500">Sistem akan membuat file Word berisi gambar QR tiap aset dan tabel informasi barang termasuk penanggung jawab.</p>
                 </div>
 
-                <form method="POST" action="{{ route('assets.export.word.bulk') }}" class="flex max-h-[calc(92vh-96px)] flex-col" data-loading-form data-print-selection-form data-selection-endpoint="{{ route('assets.selection') }}" data-initial-selected='@json(collect(old('asset_ids', []))->map(fn ($id) => (int) $id)->values())'>
+                <form method="POST" action="{{ route('assets.export.word.bulk') }}" class="flex min-h-0 flex-1 flex-col" data-loading-form data-print-selection-form data-selection-endpoint="{{ route('assets.selection') }}" data-initial-selected='@json(collect(old('asset_ids', []))->map(fn ($id) => (int) $id)->values())'>
                     @csrf
                     <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
@@ -128,7 +128,7 @@
                         <p class="text-sm text-slate-500"><span data-selected-count>0</span> aset dipilih</p>
                     </div>
 
-                    <div class="overflow-y-auto px-5 py-4 sm:px-6">
+                    <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6" data-scrollable-content>
                         <div class="space-y-3" data-asset-results></div>
                         <p class="hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" data-selection-error></p>
                         <div class="hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500" data-selection-empty>

@@ -7,11 +7,11 @@
     <link rel="icon" type="image/jpeg" href="{{ asset('branding/logo-kominfo-kubar.jpeg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="compact-app min-h-screen bg-slate-100 text-slate-900">
+<body class="compact-app min-h-[100dvh] overflow-x-hidden bg-slate-100 text-slate-900">
     <div id="mobile-sidebar-overlay" class="fixed inset-0 z-40 hidden bg-slate-950/70 lg:hidden"></div>
 
-    <div class="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
-        <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[290px] -translate-x-full flex-col bg-slate-950 px-6 py-8 text-white shadow-2xl transition-transform duration-300 lg:static lg:min-h-screen lg:w-auto lg:translate-x-0 lg:px-5 lg:py-6 lg:shadow-none">
+    <div class="min-h-[100dvh] lg:grid lg:grid-cols-[240px_1fr]">
+        <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[290px] -translate-x-full flex-col overflow-y-auto bg-slate-950 px-6 py-8 text-white shadow-2xl transition-transform duration-300 lg:static lg:min-h-screen lg:w-auto lg:translate-x-0 lg:px-5 lg:py-6 lg:shadow-none" data-scrollable-content>
             <div class="flex flex-1 flex-col">
                 <div class="flex items-start justify-between gap-4">
                     <div class="mb-7">
@@ -48,7 +48,7 @@
             </div>
         </aside>
 
-        <main class="px-4 py-4 sm:px-8 sm:py-6 lg:px-7 lg:py-4">
+        <main class="min-w-0 px-4 py-4 sm:px-8 sm:py-6 lg:px-7 lg:py-4">
             <div class="mb-4 flex items-center justify-between rounded-3xl bg-white px-4 py-3 shadow-sm lg:hidden">
                 <div class="min-w-0 flex items-center gap-3">
                     @include('partials.kominfo-logo', ['size' => 'h-12 w-12', 'alt' => 'Logo Kominfo', 'class' => 'rounded-full bg-white p-1'])
@@ -57,7 +57,7 @@
                     <p class="mt-1 text-base font-semibold text-slate-950">BMD QR Asset</p>
                     </div>
                 </div>
-                <button type="button" id="open-mobile-sidebar" class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white" aria-label="Buka menu">
+                <button type="button" id="open-mobile-sidebar" class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white" aria-label="Buka menu" aria-expanded="false">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
                     </svg>

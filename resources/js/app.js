@@ -10,17 +10,17 @@ const openMobileSidebarButton = document.getElementById('open-mobile-sidebar');
 const closeMobileSidebarButton = document.getElementById('close-mobile-sidebar');
 
 if (mobileSidebar && mobileSidebarOverlay) {
-    const openSidebar = () => {
-        mobileSidebar.classList.remove('-translate-x-full');
-        mobileSidebarOverlay.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
+    const setSidebarOpen = (isOpen) => {
+        mobileSidebar.classList.toggle('-translate-x-full', !isOpen);
+        mobileSidebarOverlay.classList.toggle('hidden', !isOpen);
+        document.body.classList.toggle('overflow-hidden', isOpen);
+        document.body.classList.toggle('touch-none', isOpen);
+        openMobileSidebarButton?.setAttribute('aria-expanded', `${isOpen}`);
+        mobileSidebar.setAttribute('aria-hidden', `${window.innerWidth < 1024 && !isOpen}`);
     };
 
-    const closeSidebar = () => {
-        mobileSidebar.classList.add('-translate-x-full');
-        mobileSidebarOverlay.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    };
+    const openSidebar = () => setSidebarOpen(true);
+    const closeSidebar = () => setSidebarOpen(false);
 
     openMobileSidebarButton?.addEventListener('click', openSidebar);
     closeMobileSidebarButton?.addEventListener('click', closeSidebar);
@@ -28,8 +28,13 @@ if (mobileSidebar && mobileSidebarOverlay) {
 
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 1024) {
-            mobileSidebarOverlay.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
+            closeSidebar();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeSidebar();
         }
     });
 }
