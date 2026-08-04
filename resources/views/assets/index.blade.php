@@ -112,10 +112,10 @@
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
                     <p class="text-sm uppercase tracking-[0.3em] text-cyan-700">Export Word</p>
                     <h3 class="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">Pilih Aset yang Mau Diexport</h3>
-                    <p class="mt-2 text-sm leading-6 text-slate-500">Sistem akan mengunduh satu file ZIP. Setelah diekstrak, folder <span class="font-semibold text-slate-700">kodebarang</span> berisi satu file Word untuk setiap aset dengan nama barang masing-masing.</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">Pilih folder tujuan, lalu sistem membuat atau memakai folder <span class="font-semibold text-slate-700">kodebarang</span> untuk menyimpan file Word setiap aset satu per satu.</p>
                 </div>
 
-                <form method="POST" action="{{ route('assets.export.word.bulk') }}" class="flex min-h-0 flex-1 flex-col" data-loading-form data-print-selection-form data-selection-endpoint="{{ route('assets.selection') }}" data-initial-selected='@json(collect(old('asset_ids', []))->map(fn ($id) => (int) $id)->values())'>
+                <form class="flex min-h-0 flex-1 flex-col" data-print-selection-form data-selection-endpoint="{{ route('assets.selection') }}" data-word-export-base="{{ url('/assets') }}" data-initial-selected='@json(collect(old('asset_ids', []))->map(fn ($id) => (int) $id)->values())'>
                     @csrf
                     <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                         <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
@@ -138,6 +138,7 @@
                             <button type="button" class="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700" data-selection-load-more>Muat lebih banyak</button>
                         </div>
                         <div class="hidden py-8 text-center text-sm text-slate-500" data-selection-loading>Memuat daftar aset...</div>
+                        <p class="hidden mt-4 rounded-2xl px-4 py-3 text-sm" data-folder-export-status role="status"></p>
                         <div data-selection-hidden-inputs></div>
                         @error('asset_ids')
                             <p class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ $message }}</p>
@@ -146,7 +147,7 @@
 
                     <div class="flex flex-col gap-3 border-t border-slate-100 px-5 py-5 sm:flex-row sm:justify-end sm:px-6">
                         <button type="button" data-close-print-modal class="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700">Batal</button>
-                        <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Download ZIP Word</button>
+                        <button type="submit" data-export-to-folder class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Export Word ke Folder</button>
                     </div>
                 </form>
             </div>

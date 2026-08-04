@@ -128,11 +128,15 @@ const selectionError = document.querySelector('[data-selection-error]');
 const selectionLoadMoreWrap = document.querySelector('[data-selection-load-more-wrap]');
 const selectionLoadMoreButton = document.querySelector('[data-selection-load-more]');
 const selectionHiddenInputs = document.querySelector('[data-selection-hidden-inputs]');
+const folderExportButton = document.querySelector('[data-export-to-folder]');
+const folderExportStatus = document.querySelector('[data-folder-export-status]');
 
 if (printSelectionModal && openPrintModalButton && printSelectionForm && assetResults) {
     const selectionEndpoint = printSelectionForm.dataset.selectionEndpoint;
+    const wordExportBaseUrl = printSelectionForm.dataset.wordExportBase;
     const initialSelectedIds = JSON.parse(printSelectionForm.dataset.initialSelected || '[]');
     const selectedAssetIds = new Set(initialSelectedIds);
+    const selectedAssets = new Map();
     let selectionPage = 1;
     let selectionHasMorePages = false;
     let selectionKeyword = '';
@@ -172,6 +176,8 @@ if (printSelectionModal && openPrintModalButton && printSelectionForm && assetRe
     };
 
     const renderSelectionItem = (asset) => {
+        selectedAssets.set(asset.id, asset);
+
         const wrapper = document.createElement('label');
         wrapper.className = 'flex cursor-pointer flex-col gap-3 rounded-2xl border border-slate-200 px-4 py-4 hover:border-cyan-200 hover:bg-cyan-50/40 sm:flex-row sm:items-start sm:justify-between sm:gap-4';
         const content = document.createElement('div');
@@ -359,8 +365,133 @@ if (printSelectionModal && openPrintModalButton && printSelectionForm && assetRe
         loadSelections({ append: true });
     });
 
-    printSelectionForm.addEventListener('submit', () => {
+    const showFolderExportStatus = (message, type = 'info') => {
+        if (!folderExportStatus) {
+            return;
+        }
+
+        folderExportStatus.textContent = message;
+        folderExportStatus.className = type === 'error'
+            ? 'mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700'
+            : 'mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-800';
+    };
+
+    const getAvailableFileName = async (directoryHandle, filename) => {
+        const extensionIndex = filename.lastIndexOf('.');
+        const baseName = extensionIndex === -1 ? filename : filename.slice(0, extensionIndex);
+        const extension = extensionIndex === -1 ? '' : filename.slice(extensionIndex);
+        let number = 0;
+
+        while (true) {
+            const candidate = number === 0 ? filename : `${baseName} (${number})${extension}`;
+
+            try {
+                await directoryHandle.getFileHandle(candidate);
+                number += 1;
+            } catch (error) {
+                if (error?.name === 'NotFoundError') {
+                    return candidate;
+                }
+
+                throw error;
+            }
+        }
+    };
+
+    const saveAssetWordToFolder = async (asset, directoryHandle) => {
+        const response = await fetch(`${wordExportBaseUrl}/${encodeURIComponent(asset.asset_code)}/export-word`, {
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Export Word untuk ${asset.name} gagal.`);
+        }
+
+        const documentBlob = await response.blob();
+        const contentDisposition = response.headers.get('content-disposition') || '';
+        const encodedFilename = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+        const plainFilename = contentDisposition.match(/filename="?([^";]+)"?/i)?.[1];
+        const serverFilename = encodedFilename ? decodeURIComponent(encodedFilename) : plainFilename;
+        const filename = await getAvailableFileName(directoryHandle, serverFilename || `${asset.name} - ${asset.asset_code}.docx`);
+        const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
+        const writable = await fileHandle.createWritable();
+
+        await writable.write(documentBlob);
+        await writable.close();
+    };
+
+    const exportSelectedAssetsToFolder = async () => {
         syncHiddenInputs();
+
+        if (!('showDirectoryPicker' in window)) {
+            showFolderExportStatus('Browser ini belum mendukung simpan langsung ke folder. Gunakan Chrome atau Edge di desktop.', 'error');
+            return;
+        }
+
+        if (selectedAssetIds.size === 0) {
+            showFolderExportStatus('Pilih minimal satu aset untuk diexport.', 'error');
+            return;
+        }
+
+        const selectedAssetsForExport = Array.from(selectedAssetIds)
+            .map((assetId) => selectedAssets.get(assetId))
+            .filter(Boolean);
+
+        if (selectedAssetsForExport.length !== selectedAssetIds.size) {
+            showFolderExportStatus('Muat ulang daftar aset lalu pilih kembali aset yang akan diexport.', 'error');
+            return;
+        }
+
+        let parentDirectoryHandle;
+
+        try {
+            parentDirectoryHandle = await window.showDirectoryPicker({
+                id: 'kodebarang-export',
+                mode: 'readwrite',
+                startIn: 'desktop',
+            });
+        } catch (error) {
+            if (error?.name !== 'AbortError') {
+                showFolderExportStatus('Folder tujuan tidak dapat dibuka. Pastikan izin tulis diberikan.', 'error');
+            }
+
+            return;
+        }
+
+        const originalButtonText = folderExportButton?.textContent;
+
+        try {
+            folderExportButton?.setAttribute('disabled', 'disabled');
+            if (folderExportButton) {
+                folderExportButton.textContent = 'Menyimpan...';
+            }
+            showFolderExportStatus('Menyiapkan folder kodebarang...');
+
+            const exportDirectoryHandle = await parentDirectoryHandle.getDirectoryHandle('kodebarang', { create: true });
+
+            for (const [index, asset] of selectedAssetsForExport.entries()) {
+                showFolderExportStatus(`Menyimpan ${index + 1} dari ${selectedAssetsForExport.length}: ${asset.name}`);
+                await saveAssetWordToFolder(asset, exportDirectoryHandle);
+            }
+
+            showFolderExportStatus(`${selectedAssetsForExport.length} file Word berhasil disimpan di folder kodebarang.`);
+        } catch (error) {
+            showFolderExportStatus(error?.message || 'Export ke folder gagal. Coba lagi.', 'error');
+        } finally {
+            folderExportButton?.removeAttribute('disabled');
+
+            if (folderExportButton && originalButtonText) {
+                folderExportButton.textContent = originalButtonText;
+            }
+        }
+    };
+
+    printSelectionForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        exportSelectedAssetsToFolder();
     });
 
     syncHiddenInputs();
