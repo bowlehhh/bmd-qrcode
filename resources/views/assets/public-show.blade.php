@@ -128,6 +128,7 @@
                 </div>
             </div>
         </div>
+        <footer class="px-4 py-6 text-center text-xs text-sky-100/65">© {{ now()->year }} DISKOMINFO Kabupaten Kutai Barat.</footer>
     </div>
 </body>
 </html>

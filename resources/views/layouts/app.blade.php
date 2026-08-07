@@ -71,6 +71,8 @@
             @endif
 
             @yield('content')
+
+            <footer class="py-6 text-center text-xs text-slate-500">© {{ now()->year }} DISKOMINFO Kabupaten Kutai Barat.</footer>
         </main>
     </div>
 

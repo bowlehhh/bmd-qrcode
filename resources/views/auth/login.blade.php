@@ -32,6 +32,7 @@
                         <p class="mt-2 text-sm text-slate-300">Scan untuk lihat detail</p>
                     </div>
                 </div>
+                <p class="mt-8 border-t border-white/15 pt-4 text-xs leading-6 text-cyan-100/75">© {{ now()->year }} DISKOMINFO Kabupaten Kutai Barat.</p>
             </section>
 
             <section class="space-y-4 bg-slate-900 p-4 sm:space-y-6 sm:p-10">
