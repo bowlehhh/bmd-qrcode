@@ -62,6 +62,21 @@
     </div>
 
     <div class="md:col-span-2">
+        <label for="photo" class="mb-1.5 block text-sm font-medium text-slate-700">Foto Barang <span class="font-normal text-slate-400">(opsional)</span></label>
+        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" data-photo-input class="block w-full cursor-pointer rounded-2xl border border-slate-200 bg-white text-sm text-slate-600 file:mr-4 file:cursor-pointer file:border-0 file:bg-cyan-50 file:px-4 file:py-3 file:font-semibold file:text-cyan-800 hover:file:bg-cyan-100">
+        <p class="mt-2 text-xs text-slate-500">Format JPG, PNG, atau WebP. Ukuran akhir maksimal 2 MB. Foto yang lebih besar akan dikompres otomatis sebelum disimpan.</p>
+        <p data-photo-feedback class="mt-2 hidden text-sm" role="status" aria-live="polite"></p>
+        @error('photo')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
+
+        @if ($asset?->photo_path)
+            <div class="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <img src="{{ url('storage/'.$asset->photo_path) }}" alt="Foto {{ $asset->name }}" class="h-16 w-16 rounded-xl object-cover">
+                <p class="text-sm text-slate-600">Foto saat ini. Pilih foto baru di atas untuk menggantinya.</p>
+            </div>
+        @endif
+    </div>
+
+    <div class="md:col-span-2">
         <label for="description" class="mb-1.5 block text-sm font-medium text-slate-700">Keterangan</label>
         <textarea id="description" name="description" rows="3" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">{{ old('description', $asset->description ?? '') }}</textarea>
         @error('description')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror

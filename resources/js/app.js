@@ -81,15 +81,52 @@ if (logoutForm && logoutModal) {
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingForms = document.querySelectorAll('[data-loading-form]');
 const deleteForms = document.querySelectorAll('[data-confirm-delete]');
+const deleteModal = document.getElementById('delete-modal');
+const deleteAssetLabel = document.getElementById('delete-asset-label');
+const cancelDeleteButton = document.getElementById('cancel-delete');
+const confirmDeleteButton = document.getElementById('confirm-delete');
 const backToScanButton = document.getElementById('back-to-scan');
+let pendingDeleteForm = null;
 
-deleteForms.forEach((form) => {
-    form.addEventListener('submit', (event) => {
-        if (!window.confirm('Hapus aset ini?')) {
+const closeDeleteModal = () => {
+    deleteModal?.classList.add('hidden');
+    deleteModal?.classList.remove('flex');
+    pendingDeleteForm = null;
+};
+
+if (deleteModal) {
+    deleteForms.forEach((form) => {
+        form.addEventListener('submit', (event) => {
             event.preventDefault();
+            pendingDeleteForm = form;
+
+            if (deleteAssetLabel) {
+                deleteAssetLabel.textContent = form.dataset.assetLabel || 'aset ini';
+            }
+
+            deleteModal.classList.remove('hidden');
+            deleteModal.classList.add('flex');
+        });
+    });
+
+    cancelDeleteButton?.addEventListener('click', closeDeleteModal);
+
+    confirmDeleteButton?.addEventListener('click', () => {
+        if (!pendingDeleteForm) {
+            return;
+        }
+
+        confirmDeleteButton.disabled = true;
+        confirmDeleteButton.textContent = 'Menghapus...';
+        pendingDeleteForm.submit();
+    });
+
+    deleteModal.addEventListener('click', (event) => {
+        if (event.target === deleteModal) {
+            closeDeleteModal();
         }
     });
-});
+}
 
 backToScanButton?.addEventListener('click', () => {
     if (window.history.length > 1) {
@@ -102,7 +139,14 @@ backToScanButton?.addEventListener('click', () => {
 
 if (loadingOverlay && loadingForms.length > 0) {
     loadingForms.forEach((form) => {
-        form.addEventListener('submit', () => {
+        form.addEventListener('submit', (event) => {
+            if (form.dataset.photoIsCompressing === 'true') {
+                event.preventDefault();
+                window.alert('Foto sedang dikompres. Tunggu sampai proses selesai sebelum menyimpan aset.');
+
+                return;
+            }
+
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
 
@@ -113,6 +157,160 @@ if (loadingOverlay && loadingForms.length > 0) {
         });
     });
 }
+
+const photoInputs = document.querySelectorAll('[data-photo-input]');
+const maxPhotoBytes = 2 * 1024 * 1024;
+const targetPhotoBytes = Math.floor(1.9 * 1024 * 1024);
+const maximumPhotoDimension = 2048;
+
+const formatFileSize = (bytes) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+
+const loadImage = (file) => new Promise((resolve, reject) => {
+    const image = new Image();
+    const imageUrl = URL.createObjectURL(file);
+
+    image.addEventListener('load', () => {
+        URL.revokeObjectURL(imageUrl);
+        resolve(image);
+    }, { once: true });
+    image.addEventListener('error', () => {
+        URL.revokeObjectURL(imageUrl);
+        reject(new Error('Foto tidak dapat dibaca.'));
+    }, { once: true });
+    image.src = imageUrl;
+});
+
+const canvasToJpeg = (canvas, quality) => new Promise((resolve) => {
+    canvas.toBlob(resolve, 'image/jpeg', quality);
+});
+
+const createPhotoCanvas = (image, width, height) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    return canvas;
+};
+
+const compressPhoto = async (file) => {
+    const image = await loadImage(file);
+    const initialScale = Math.min(1, maximumPhotoDimension / Math.max(image.naturalWidth, image.naturalHeight));
+    let width = Math.max(1, Math.round(image.naturalWidth * initialScale));
+    let height = Math.max(1, Math.round(image.naturalHeight * initialScale));
+
+    for (let resizeAttempt = 0; resizeAttempt < 6; resizeAttempt += 1) {
+        const canvas = createPhotoCanvas(image, width, height);
+        const initialBlob = await canvasToJpeg(canvas, 0.82);
+
+        if (initialBlob && initialBlob.size <= targetPhotoBytes) {
+            return initialBlob;
+        }
+
+        let lowestQuality = 0.3;
+        let highestQuality = 0.82;
+        let bestBlob = null;
+
+        for (let qualityAttempt = 0; qualityAttempt < 7; qualityAttempt += 1) {
+            const quality = (lowestQuality + highestQuality) / 2;
+            const blob = await canvasToJpeg(canvas, quality);
+
+            if (!blob) {
+                break;
+            }
+
+            if (blob.size <= targetPhotoBytes) {
+                bestBlob = blob;
+                lowestQuality = quality;
+            } else {
+                highestQuality = quality;
+            }
+        }
+
+        if (bestBlob) {
+            return bestBlob;
+        }
+
+        width = Math.max(480, Math.round(width * 0.75));
+        height = Math.max(480, Math.round(height * 0.75));
+    }
+
+    throw new Error('Foto tidak dapat dikompres hingga ukuran maksimal 2 MB.');
+};
+
+photoInputs.forEach((input) => {
+    const form = input.closest('form');
+    const feedback = input.parentElement?.querySelector('[data-photo-feedback]');
+
+    if (form && !form.hasAttribute('data-loading-form')) {
+        form.addEventListener('submit', (event) => {
+            if (form.dataset.photoIsCompressing === 'true') {
+                event.preventDefault();
+                window.alert('Foto sedang dikompres. Tunggu sampai proses selesai sebelum menyimpan aset.');
+            }
+        });
+    }
+
+    const setFeedback = (message, type = 'info') => {
+        if (!feedback) {
+            return;
+        }
+
+        feedback.textContent = message;
+        feedback.classList.remove('hidden', 'text-slate-500', 'text-cyan-700', 'text-rose-600');
+        feedback.classList.add(type === 'error' ? 'text-rose-600' : (type === 'success' ? 'text-cyan-700' : 'text-slate-500'));
+    };
+
+    input.addEventListener('change', async () => {
+        const [file] = input.files || [];
+
+        if (!file) {
+            feedback?.classList.add('hidden');
+            return;
+        }
+
+        if (file.size <= maxPhotoBytes) {
+            setFeedback(`Ukuran foto ${formatFileSize(file.size)}. Siap diunggah.`, 'success');
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            input.value = '';
+            setFeedback('File harus berupa gambar JPG, PNG, atau WebP.', 'error');
+            window.alert('Foto tidak valid. Pilih gambar JPG, PNG, atau WebP.');
+            return;
+        }
+
+        form?.setAttribute('data-photo-is-compressing', 'true');
+        input.disabled = true;
+        setFeedback(`Foto ${formatFileSize(file.size)} sedang dikompres otomatis...`);
+
+        try {
+            const compressedPhoto = await compressPhoto(file);
+            const fileName = `${file.name.replace(/\.[^.]+$/, '') || 'foto-aset'}.jpg`;
+            const compressedFile = new File([compressedPhoto], fileName, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+            });
+            const transfer = new DataTransfer();
+            transfer.items.add(compressedFile);
+            input.files = transfer.files;
+            setFeedback(`Foto dikompres otomatis dari ${formatFileSize(file.size)} menjadi ${formatFileSize(compressedFile.size)}.`, 'success');
+        } catch (error) {
+            input.value = '';
+            const message = error?.message || 'Foto tidak dapat dikompres otomatis.';
+            setFeedback(message, 'error');
+            window.alert(`${message} Pilih foto lain dengan ukuran lebih kecil.`);
+        } finally {
+            input.disabled = false;
+            form?.removeAttribute('data-photo-is-compressing');
+        }
+    });
+});
 
 const printSelectionModal = document.getElementById('print-selection-modal');
 const openPrintModalButton = document.querySelector('[data-open-print-modal]');

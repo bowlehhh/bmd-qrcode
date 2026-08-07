@@ -108,7 +108,9 @@
                         </div>
 
                         @if ($asset->photo_path)
-                            <img src="{{ url('storage/'.$asset->photo_path) }}" alt="{{ $asset->name }}" class="h-72 w-full rounded-[1.7rem] border border-cyan-300/12 object-cover shadow-xl shadow-cyan-950/20 sm:h-96">
+                            <div class="aspect-[4/3] w-full overflow-hidden rounded-[1.7rem] border border-cyan-300/12 bg-slate-950/35 shadow-xl shadow-cyan-950/20">
+                                <img src="{{ url('storage/'.$asset->photo_path) }}" alt="{{ $asset->name }}" class="h-full w-full object-contain">
+                            </div>
                         @else
                             <div class="flex min-h-48 flex-col items-center justify-center rounded-[1.7rem] border border-dashed border-cyan-300/20 bg-slate-950/35 px-6 py-8 text-center sm:min-h-56">
                                 <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-100">

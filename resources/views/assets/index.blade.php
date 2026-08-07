@@ -42,7 +42,7 @@
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('assets.export.word', $asset) }}" class="rounded-2xl bg-cyan-50 px-4 py-3 text-center text-sm font-semibold text-cyan-700">Export Word</a>
                         <a href="{{ route('assets.edit', $asset) }}" class="rounded-2xl bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-700">Ubah</a>
-                        <form method="POST" action="{{ route('assets.destroy', $asset) }}" data-confirm-delete>
+                        <form method="POST" action="{{ route('assets.destroy', $asset) }}" data-confirm-delete data-asset-label="{{ $asset->asset_code }} - {{ $asset->name }}">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="w-full rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">Hapus</button>
@@ -84,7 +84,7 @@
                                     @if (auth()->user()->isAdmin())
                                         <a href="{{ route('assets.export.word', $asset) }}" class="rounded-xl bg-cyan-50 px-3 py-1.5 text-cyan-700">Export Word</a>
                                         <a href="{{ route('assets.edit', $asset) }}" class="rounded-xl bg-amber-50 px-3 py-1.5 text-amber-700">Ubah</a>
-                                        <form method="POST" action="{{ route('assets.destroy', $asset) }}" data-confirm-delete>
+                                        <form method="POST" action="{{ route('assets.destroy', $asset) }}" data-confirm-delete data-asset-label="{{ $asset->asset_code }} - {{ $asset->name }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-xl bg-rose-50 px-3 py-1.5 text-rose-700">Hapus</button>

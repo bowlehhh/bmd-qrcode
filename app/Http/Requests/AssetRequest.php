@@ -65,6 +65,7 @@ abstract class AssetRequest extends FormRequest
             'boolean' => ':attribute harus dipilih dengan benar.',
             'in' => ':attribute yang dipilih tidak valid.',
             'image' => 'Foto barang harus berupa gambar.',
+            'photo.max' => 'Ukuran foto barang maksimal 2 MB.',
         ];
     }
 
@@ -82,6 +83,7 @@ abstract class AssetRequest extends FormRequest
             'location' => 'Lokasi Barang',
             'person_in_charge' => 'Penanggung Jawab',
             'condition' => 'Kondisi Barang',
+            'photo' => 'Foto Barang',
             'description' => 'Keterangan',
         ];
     }

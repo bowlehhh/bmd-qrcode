@@ -86,6 +86,18 @@
         </div>
     </div>
 
+    <div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 px-4" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <div class="w-full max-w-md rounded-[2rem] bg-white p-6 text-slate-900 shadow-2xl">
+            <p class="text-sm uppercase tracking-[0.3em] text-rose-600">Konfirmasi Penghapusan</p>
+            <h3 id="delete-modal-title" class="mt-3 text-2xl font-semibold">Hapus aset ini?</h3>
+            <p class="mt-3 text-sm leading-7 text-slate-600">Anda akan menghapus <span id="delete-asset-label" class="font-semibold text-slate-800">aset ini</span>. Data aset, foto, dan QR Code terkait akan dihapus permanen dan tidak bisa dikembalikan.</p>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button type="button" id="cancel-delete" class="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700">Batal</button>
+                <button type="button" id="confirm-delete" class="rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white hover:bg-rose-700">Ya, Hapus Aset</button>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 px-4">
         <div class="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center text-slate-900 shadow-2xl">
             <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-cyan-500"></div>
