@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 abstract class AssetRequest extends FormRequest
 {
@@ -27,14 +26,11 @@ abstract class AssetRequest extends FormRequest
      */
     protected function assetRules(bool $forUpdate = false): array
     {
-        $assetId = $this->route('asset')?->id;
-
         return [
             'asset_code' => [
                 $forUpdate ? 'sometimes' : 'required',
                 'string',
                 'max:50',
-                Rule::unique('assets', 'asset_code')->ignore($assetId),
             ],
             'register_number' => ['nullable', 'string', 'max:255'],
             'name' => [$forUpdate ? 'sometimes' : 'required', 'string', 'max:255'],

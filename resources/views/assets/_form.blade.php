@@ -9,8 +9,9 @@
 
     @if (! $asset)
         <div>
-            <label for="asset_code" class="mb-1.5 block text-sm font-medium text-slate-700">Kode Barang</label>
+            <label for="asset_code" class="mb-1.5 block text-sm font-medium text-slate-700">Kode Barang <span class="font-normal text-slate-400">(boleh sama)</span></label>
             <input id="asset_code" name="asset_code" type="text" value="{{ old('asset_code', $asset->asset_code ?? '') }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3" required>
+            <p class="mt-2 text-xs text-slate-500">Setiap data tetap memiliki QR Code sendiri, termasuk bila kode dan tahun perolehan sama.</p>
             @error('asset_code')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
         </div>
     @elseif ($asset)

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Asset;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -56,6 +57,30 @@ class ExampleTest extends TestCase
         $response->assertOk();
         $response->assertSee('Laptop Lenovo');
         $response->assertSee('BMD-00125');
+    }
+
+    public function test_admin_can_save_duplicate_asset_codes_with_unique_qr_destinations(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create(['role' => 'admin']);
+        $data = [
+            'asset_code' => '1.3.2.10.02.03.003',
+            'name' => 'Personal Computer',
+            'location' => 'Sekretariat',
+            'condition' => 'baik',
+        ];
+
+        $this->actingAs($user)->post(route('assets.store'), $data)->assertRedirect();
+        $this->actingAs($user)->post(route('assets.store'), $data)->assertRedirect();
+
+        $assets = Asset::where('asset_code', $data['asset_code'])->orderBy('id')->get();
+
+        $this->assertCount(2, $assets);
+        $this->assertNotSame($assets[0]->qr_target_url, $assets[1]->qr_target_url);
+        $this->assertNotSame($assets[0]->qr_code_path, $assets[1]->qr_code_path);
+        Storage::disk('public')->assertExists($assets[0]->qr_code_path);
+        Storage::disk('public')->assertExists($assets[1]->qr_code_path);
     }
 
     public function test_non_admin_cannot_open_asset_create_page(): void
@@ -118,8 +143,8 @@ class ExampleTest extends TestCase
         $archive = new ZipArchive();
 
         $this->assertTrue($archive->open($archivePath) === true);
-        $this->assertNotFalse($archive->locateName('kodebarang/Laptop Bidang Umum - BMD-10001.docx'));
-        $this->assertNotFalse($archive->locateName('kodebarang/Printer Kantor - BMD-10002.docx'));
+        $this->assertNotFalse($archive->locateName('kodebarang/Laptop Bidang Umum - BMD-10001 - aset-'.$firstAsset->id.'.docx'));
+        $this->assertNotFalse($archive->locateName('kodebarang/Printer Kantor - BMD-10002 - aset-'.$secondAsset->id.'.docx'));
         $archive->close();
 
         @unlink($archivePath);

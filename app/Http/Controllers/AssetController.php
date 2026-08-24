@@ -57,7 +57,8 @@ class AssetController extends Controller
             $asset = DB::transaction(function () use ($data) {
                 $asset = Asset::create($data);
                 $targetUrl = route('assets.public.show', $asset);
-                $qrPath = 'assets/qrcodes/'.$asset->asset_code.'.svg';
+                // ID aset selalu unik, sedangkan kode barang boleh berulang.
+                $qrPath = 'assets/qrcodes/asset-'.$asset->id.'.svg';
                 $qrSvg = QrCode::format('svg')->size(280)->margin(1)->generate($targetUrl);
 
                 Storage::disk('public')->put($qrPath, $qrSvg);
@@ -98,7 +99,27 @@ class AssetController extends Controller
         return view('assets.public-show', compact('asset'));
     }
 
+    public function publicShowByAssetCode(string $assetCode)
+    {
+        // QR lama hanya dapat menunjuk satu aset karena kode dulu bersifat unik.
+        $asset = Asset::where('asset_code', $assetCode)->oldest('id')->firstOrFail();
+
+        return view('assets.public-show', compact('asset'));
+    }
+
     public function publicLookup(Asset $asset)
+    {
+        return $this->assetLookupResponse($asset);
+    }
+
+    public function publicLookupByAssetCode(string $assetCode): JsonResponse
+    {
+        $asset = Asset::where('asset_code', $assetCode)->oldest('id')->firstOrFail();
+
+        return $this->assetLookupResponse($asset);
+    }
+
+    private function assetLookupResponse(Asset $asset): JsonResponse
     {
         $photoUrl = $asset->photo_path ? url('storage/'.$asset->photo_path) : null;
 
@@ -284,7 +305,7 @@ class AssetController extends Controller
 
         abort_unless($asset->qr_code_path && Storage::disk('public')->exists($asset->qr_code_path), 404, 'File QR tidak ditemukan.');
 
-        return Storage::disk('public')->download($asset->qr_code_path, $asset->asset_code.'-qrcode.svg');
+        return Storage::disk('public')->download($asset->qr_code_path, $this->safeAssetFilename($asset, 'qrcode.svg'));
     }
 
     private function ensureAdmin(): void
@@ -392,7 +413,7 @@ class AssetController extends Controller
             $section->addText($asset->name, ['bold' => true, 'size' => 16], ['alignment' => Jc::CENTER, 'spaceAfter' => 120]);
             $section->addText($asset->asset_code.' - '.$asset->location, ['size' => 11, 'color' => '4B5563'], ['alignment' => Jc::CENTER, 'spaceAfter' => 240]);
 
-            $qrPath = $this->exportDirectory().'/'.uniqid($asset->asset_code.'-qr-', true).'.png';
+            $qrPath = $this->exportDirectory().'/'.uniqid('asset-'.$asset->id.'-qr-', true).'.png';
             $qrOptions = new QROptions([
                 'outputInterface' => QRGdImagePNG::class,
                 'scale' => 10,
@@ -468,7 +489,15 @@ class AssetController extends Controller
         $name = preg_replace('/[\\\\\/:*?"<>|\x00-\x1F]+/u', ' ', trim($asset->name)) ?: 'Aset';
         $name = trim(preg_replace('/\s+/u', ' ', $name) ?: 'Aset', " .");
 
-        return $name.' - '.$asset->asset_code.'.docx';
+        return $name.' - '.$this->safeAssetFilename($asset, 'docx');
+    }
+
+    private function safeAssetFilename(Asset $asset, string $suffix): string
+    {
+        $assetCode = preg_replace('/[\\\\\/:*?"<>|\x00-\x1F]+/u', ' ', trim($asset->asset_code)) ?: 'Kode Aset';
+        $assetCode = trim(preg_replace('/\s+/u', ' ', $assetCode) ?: 'Kode Aset', " .");
+
+        return $assetCode.' - aset-'.$asset->id.'.'.$suffix;
     }
 
     /**

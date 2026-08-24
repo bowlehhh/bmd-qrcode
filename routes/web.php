@@ -14,8 +14,13 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('throttle:60,1')->group(function () {
-    Route::get('/aset/{asset:asset_code}', [AssetController::class, 'publicShow'])->name('assets.public.show');
-    Route::get('/aset/{asset:asset_code}/lookup', [AssetController::class, 'publicLookup'])->name('assets.public.lookup');
+    // QR baru memakai ID aset yang unik. Kode barang boleh sama pada beberapa aset.
+    Route::get('/aset/qr/{asset}', [AssetController::class, 'publicShow'])->name('assets.public.show');
+    Route::get('/aset/qr/{asset}/lookup', [AssetController::class, 'publicLookup'])->name('assets.public.lookup');
+
+    // Tetap layani QR lama yang pernah dibuat saat kode barang masih unik.
+    Route::get('/aset/{assetCode}', [AssetController::class, 'publicShowByAssetCode'])->name('assets.public.show.legacy');
+    Route::get('/aset/{assetCode}/lookup', [AssetController::class, 'publicLookupByAssetCode'])->name('assets.public.lookup.legacy');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -25,7 +30,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/assets/selection', [AssetController::class, 'selection'])->name('assets.selection');
     Route::post('/assets/export/word', [AssetController::class, 'bulkExportWord'])->name('assets.export.word.bulk');
-    Route::get('/assets/{asset:asset_code}/export-word', [AssetController::class, 'exportWord'])->name('assets.export.word');
-    Route::get('/assets/{asset:asset_code}/download', [AssetController::class, 'download'])->name('assets.download');
+    Route::get('/assets/{asset}/export-word', [AssetController::class, 'exportWord'])->name('assets.export.word');
+    Route::get('/assets/{asset}/download', [AssetController::class, 'download'])->name('assets.download');
     Route::resource('assets', AssetController::class)->parameters(['assets' => 'asset']);
 });

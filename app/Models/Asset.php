@@ -38,11 +38,6 @@ class Asset extends Model
         ];
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'asset_code';
-    }
-
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
