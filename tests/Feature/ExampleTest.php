@@ -59,6 +59,28 @@ class ExampleTest extends TestCase
         $response->assertSee('BMD-00125');
     }
 
+    public function test_login_scanner_contains_lookup_routes_for_new_and_legacy_qr_codes(): void
+    {
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $response->assertSee('/aset/qr/__ASSET_ID__/lookup', false);
+        $response->assertSee('/aset/__ASSET_CODE__/lookup', false);
+    }
+
+    public function test_public_lookup_by_unique_asset_id_returns_the_scanned_asset(): void
+    {
+        $asset = Asset::factory()->create([
+            'asset_code' => 'KODE-BUKAN-ID',
+        ]);
+
+        $response = $this->getJson(route('assets.public.lookup', $asset));
+
+        $response->assertOk();
+        $response->assertJsonPath('asset_code', 'KODE-BUKAN-ID');
+        $response->assertJsonPath('name', $asset->name);
+    }
+
     public function test_admin_can_save_duplicate_asset_codes_with_unique_qr_destinations(): void
     {
         Storage::fake('public');

@@ -710,6 +710,21 @@ if (scannerRoot) {
     let html5QrCode;
     let scannerActive = false;
 
+    const buildLookupUrl = (template, placeholder, identifier) => {
+        const lookupUrl = new URL(
+            template.replace(placeholder, encodeURIComponent(identifier)),
+            window.location.href
+        );
+
+        // QR yang dicetak sebelum pindah domain tetap dicari pada server yang
+        // sedang dibuka, sementara path dasar aplikasi (jika di subfolder)
+        // mengikuti route yang dibuat Laravel.
+        lookupUrl.protocol = window.location.protocol;
+        lookupUrl.host = window.location.host;
+
+        return lookupUrl.toString();
+    };
+
     const setStatus = (message) => {
         if (statusElement) {
             statusElement.textContent = message;
@@ -775,30 +790,28 @@ if (scannerRoot) {
     const getLookupUrl = (decodedText) => {
         const value = decodedText.trim();
 
-        if (/^https?:\/\//i.test(value)) {
-            const parsedUrl = new URL(value);
-            const path = parsedUrl.pathname.replace(/\/$/, '');
+        const assetLookupTemplate = scannerRoot.dataset.assetLookupTemplate;
+        const legacyLookupTemplate = scannerRoot.dataset.legacyLookupTemplate;
 
-            if (path.includes('/aset/')) {
-                const code = decodeURIComponent(path.split('/').filter(Boolean).pop() || '');
-                return `${window.location.origin}/aset/${encodeURIComponent(code)}/lookup`;
+        if (/^https?:\/\//i.test(value) || value.startsWith('/')) {
+            const parsedUrl = new URL(value, window.location.origin);
+            const segments = parsedUrl.pathname.split('/').filter(Boolean);
+            const assetSegmentIndex = segments.lastIndexOf('aset');
+
+            if (assetSegmentIndex !== -1) {
+                const usesUniqueAssetId = segments[assetSegmentIndex + 1] === 'qr';
+                const identifierIndex = assetSegmentIndex + (usesUniqueAssetId ? 2 : 1);
+                const identifier = decodeURIComponent(segments[identifierIndex] || '');
+
+                if (identifier) {
+                    return usesUniqueAssetId
+                        ? buildLookupUrl(assetLookupTemplate, '__ASSET_ID__', identifier)
+                        : buildLookupUrl(legacyLookupTemplate, '__ASSET_CODE__', identifier);
+                }
             }
-
-            return `${window.location.origin}${path}/lookup`;
         }
 
-        if (value.startsWith('/')) {
-            const path = value.replace(/\/$/, '');
-
-            if (path.includes('/aset/')) {
-                const code = decodeURIComponent(path.split('/').filter(Boolean).pop() || '');
-                return `${window.location.origin}/aset/${encodeURIComponent(code)}/lookup`;
-            }
-
-            return `${window.location.origin}${path}/lookup`;
-        }
-
-        return `${window.location.origin}/aset/${encodeURIComponent(value)}/lookup`;
+        return buildLookupUrl(legacyLookupTemplate, '__ASSET_CODE__', value);
     };
 
     const onScanSuccess = async (decodedText) => {

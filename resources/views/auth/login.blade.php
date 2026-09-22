@@ -66,7 +66,13 @@
                         <button type="button" id="start-scanner" class="w-full touch-manipulation rounded-2xl bg-cyan-400 px-4 py-4 text-base font-semibold text-slate-950 active:scale-[0.99]">Mulai Scan Sekarang</button>
                     </div>
 
-                    <div id="asset-scanner" data-asset-scanner class="mt-5 hidden">
+                    <div
+                        id="asset-scanner"
+                        data-asset-scanner
+                        data-asset-lookup-template="{{ route('assets.public.lookup', ['asset' => '__ASSET_ID__']) }}"
+                        data-legacy-lookup-template="{{ route('assets.public.lookup.legacy', ['assetCode' => '__ASSET_CODE__']) }}"
+                        class="mt-5 hidden"
+                    >
                         <div id="reader" class="overflow-hidden rounded-3xl border border-slate-800 bg-black"></div>
                         <p id="scanner-status" class="mt-3 text-sm leading-7 text-slate-400">Scanner belum dijalankan.</p>
                         <p id="scanner-help" class="mt-2 text-xs leading-6 text-slate-500">Jika kamera HP tidak mau terbuka, biasanya browser memblokir akses kamera pada alamat HTTP biasa.</p>
