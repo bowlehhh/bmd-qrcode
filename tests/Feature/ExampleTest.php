@@ -105,6 +105,26 @@ class ExampleTest extends TestCase
         Storage::disk('public')->assertExists($assets[1]->qr_code_path);
     }
 
+    public function test_admin_can_use_a_dash_for_an_empty_acquisition_year(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($user)->post(route('assets.store'), [
+            'asset_code' => 'BMD-TANPA-TAHUN',
+            'name' => 'Barang Tanpa Tahun',
+            'year_acquired' => '-',
+            'location' => 'Gudang',
+            'condition' => 'baik',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('assets', [
+            'asset_code' => 'BMD-TANPA-TAHUN',
+            'year_acquired' => null,
+        ]);
+    }
+
     public function test_non_admin_cannot_open_asset_create_page(): void
     {
         $user = User::factory()->create([

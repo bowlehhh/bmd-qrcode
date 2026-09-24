@@ -36,7 +36,8 @@
 
     <div>
         <label for="year_acquired" class="mb-1.5 block text-sm font-medium text-slate-700">Tahun Perolehan</label>
-        <input id="year_acquired" name="year_acquired" type="number" value="{{ old('year_acquired', $asset->year_acquired ?? '') }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <input id="year_acquired" name="year_acquired" type="text" maxlength="4" value="{{ old('year_acquired', $asset->year_acquired ?? '-') }}" placeholder="-" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <p class="mt-2 text-xs text-slate-500">Ketik tahun 4 digit, atau gunakan <span class="font-semibold">-</span> jika datanya kosong.</p>
         @error('year_acquired')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
     </div>
 

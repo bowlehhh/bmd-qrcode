@@ -9,10 +9,13 @@ abstract class AssetRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $name = trim((string) $this->input('name', ''));
+        $yearAcquired = trim((string) $this->input('year_acquired', ''));
 
         $this->merge([
             'category' => $this->filled('category') ? $this->input('category') : ($name !== '' ? $name : 'Barang'),
             'is_in_use' => $this->has('is_in_use') ? $this->input('is_in_use') : 1,
+            // Tanda "-" pada form berarti tahun belum diketahui.
+            'year_acquired' => $yearAcquired === '-' || $yearAcquired === '' ? null : $yearAcquired,
         ]);
     }
 
